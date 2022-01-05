@@ -1,0 +1,5 @@
+# Owners of the repository
+@ursysorg/auth0securityteam
+
+# Owners of untrusted resources
+/terraform/untrusted* @ursysorg/auth0engteam
