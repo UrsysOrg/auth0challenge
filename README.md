@@ -31,7 +31,7 @@ terraform/challengetest/untrusted/
 
 ### Terraform Setup
 
-We are using Terraform Cloud's Free Tier as a remote backend for running our terraform code. Github Actions will run, connect to Terraform Cloud, and publish results to the branch before merging.
+We are using Terraform Cloud's Free Tier as a remote backend for running our terraform code. Github Actions will run, connect to Terraform Cloud, and publish results to the branch before merging. To initialize Terraform Cloud, ensure your TFC user has been invited to the "Ursys" Organization, and then execute `terraform login`. This will generate a User API token, which can then be used to authorize terraform CLI commands against the TFC Backend.
 
 ### Github Actions
 
