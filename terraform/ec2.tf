@@ -149,12 +149,35 @@ resource "aws_subnet" "subnet_west" {
     Candidate = "Sara Angel-Murphy"
   }
 }
+resource "aws_security_group" "open_ssh_west" {
+  provider = aws.uswest1
+  name        = "Open SSH from World"
+  description = "Open SSH from World"
+  vpc_id      = aws_vpc.vpc_west.id
+  ingress {
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+  egress {
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+  tags = {
+    Candidate = "Sara Angel-Murphy"
+  }
+}
 
 resource "aws_network_interface" "interface_ignore" {
   provider  = aws.uswest1
   count     = local.instance_count
   subnet_id = aws_subnet.subnet_west.id
-  security_groups = [aws_security_group.open_ssh.id]
+  security_groups = [aws_security_group.open_ssh_west.id]
   tags = {
     Candidate = "Sara Angel-Murphy"
   }
