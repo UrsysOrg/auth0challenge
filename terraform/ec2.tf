@@ -1,24 +1,9 @@
 locals {
   instance_count = 2
 }
+
+### US EAST
 data "aws_ami" "ubuntu" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["099720109477"] # Canonical
-}
-
-data "aws_ami" "ubuntu_us_west_1" {
-  provider = aws.uswest1
   most_recent = true
 
   filter {
@@ -123,10 +108,52 @@ resource "aws_instance" "instance_ssh" {
   }
 }
 
+
+### US WEST
+
+data "aws_ami" "ubuntu_us_west_1" {
+  provider = aws.uswest1
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+resource "aws_vpc" "vpc_west" {
+  provider = aws.uswest1
+  cidr_block = "10.0.0.0/16"
+
+  tags = {
+    Name      = "ec2_shutdown_vpc"
+    Candidate = "Sara Angel-Murphy"
+  }
+}
+
+resource "aws_subnet" "subnet_west" {
+  provider = aws.uswest1
+  vpc_id            = aws_vpc.vpc_west.id
+  cidr_block        = "10.0.0.0/24"
+  availability_zone = "us-east-1a"
+
+  tags = {
+    Name      = "ec2_shutdown_subnet"
+    Candidate = "Sara Angel-Murphy"
+  }
+}
+
 resource "aws_network_interface" "interface_ignore" {
   provider  = aws.uswest1
   count     = local.instance_count
-  subnet_id = aws_subnet.subnet.id
+  subnet_id = aws_subnet.subnet_west.id
   security_groups = [aws_security_group.open_ssh.id]
   tags = {
     Candidate = "Sara Angel-Murphy"
