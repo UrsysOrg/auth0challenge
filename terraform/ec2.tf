@@ -55,6 +55,7 @@ resource "aws_instance" "instance_default" {
     device_index         = 0
   }
   tags = {
+    Name      = "ec2_instance_default_sg"
     Candidate = "Sara Angel-Murphy"
   }
 }
@@ -96,6 +97,7 @@ resource "aws_instance" "instance_ssh" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t2.micro"
   tags = {
+    Name      = "ec2_instance_ssh_open_sg"
     Candidate = "Sara Angel-Murphy"
   }
   network_interface {
@@ -114,10 +116,12 @@ resource "aws_network_interface" "interface_ignore" {
 }
 
 resource "aws_instance" "instance_ignore" {
+  provider = aws.uswest1
   count                  = local.instance_count
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t2.micro"
   tags = {
+      Name      = "ec2_instance_ignore_sg"
       Candidate = "Sara Angel-Murphy",
       shutdown_service_excluded = "True"
   }
