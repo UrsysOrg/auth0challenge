@@ -124,6 +124,7 @@ resource "aws_instance" "instance_ssh" {
 }
 
 resource "aws_network_interface" "interface_ignore" {
+  provider  = aws.uswest1
   count     = local.instance_count
   subnet_id = aws_subnet.subnet.id
   security_groups = [aws_security_group.open_ssh.id]
