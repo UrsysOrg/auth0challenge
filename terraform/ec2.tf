@@ -17,6 +17,23 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
+data "aws_ami" "ubuntu_us_west_1" {
+  provider = aws.uswest1
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
 resource "aws_vpc" "vpc" {
   cidr_block = "10.0.0.0/16"
 
@@ -118,7 +135,7 @@ resource "aws_network_interface" "interface_ignore" {
 resource "aws_instance" "instance_ignore" {
   provider = aws.uswest1
   count                  = local.instance_count
-  ami                    = data.aws_ami.ubuntu.id
+  ami                    = data.aws_ami.ubuntu_us_west_1.id
   instance_type          = "t2.micro"
   tags = {
       Name      = "ec2_instance_ignore_sg"
