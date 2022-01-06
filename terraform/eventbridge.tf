@@ -24,13 +24,11 @@ resource "aws_cloudwatch_event_target" "sqs" {
   }
   input_transformer {
     input_paths = {
-      instance = "$.detail.instance",
-      status   = "$.detail.status",
+      instance = "$.detail.instance-id"
     }
     input_template = <<EOF
 {
-  "instance_id": <instance>,
-  "instance_status": <status>
+  "instance_id": <instance>
 }
 EOF
   }
