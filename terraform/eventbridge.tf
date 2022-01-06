@@ -28,6 +28,7 @@ resource "aws_cloudwatch_event_target" "sqs" {
   input_transformer {
     input_paths = {
       instance = "$.detail.instance-id"
+      region   = "$.region"
     }
     input_template = <<EOF
 {
