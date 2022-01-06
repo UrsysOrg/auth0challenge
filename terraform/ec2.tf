@@ -62,6 +62,7 @@ resource "aws_instance" "instance_default" {
 resource "aws_security_group" "open_ssh" {
   name        = "Open SSH from World"
   description = "Open SSH from World"
+  vpc_id      = aws_vpc.vpc.id
   ingress {
     from_port        = 22
     to_port          = 22
