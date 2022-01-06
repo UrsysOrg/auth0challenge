@@ -116,10 +116,10 @@ resource "aws_network_interface" "interface_ignore" {
 }
 
 resource "aws_instance" "instance_ignore" {
+  provider = aws.uswest1
   count                  = local.instance_count
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t2.micro"
-  region                 = "us-west-1"
   tags = {
       Name      = "ec2_instance_ignore_sg"
       Candidate = "Sara Angel-Murphy",
