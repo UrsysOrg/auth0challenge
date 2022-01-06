@@ -85,6 +85,7 @@ resource "aws_security_group" "open_ssh" {
 resource "aws_network_interface" "interface_ssh" {
   count     = local.instance_count
   subnet_id = aws_subnet.subnet.id
+  security_groups = [aws_security_group.open_ssh.id]
   tags = {
     Candidate = "Sara Angel-Murphy"
   }
@@ -94,7 +95,6 @@ resource "aws_instance" "instance_ssh" {
   count                  = local.instance_count
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t2.micro"
-  vpc_security_group_ids = [aws_security_group.open_ssh.id]
   tags = {
     Candidate = "Sara Angel-Murphy"
   }
@@ -107,6 +107,7 @@ resource "aws_instance" "instance_ssh" {
 resource "aws_network_interface" "interface_ignore" {
   count     = local.instance_count
   subnet_id = aws_subnet.subnet.id
+  security_groups = [aws_security_group.open_ssh.id]
   tags = {
     Candidate = "Sara Angel-Murphy"
   }
@@ -116,7 +117,6 @@ resource "aws_instance" "instance_ignore" {
   count                  = local.instance_count
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t2.micro"
-  vpc_security_group_ids = [aws_security_group.open_ssh.id]
   tags = {
       Candidate = "Sara Angel-Murphy",
       shutdown_service_excluded = "True"
