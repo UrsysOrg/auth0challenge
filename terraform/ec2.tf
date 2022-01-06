@@ -143,7 +143,7 @@ resource "aws_instance" "instance_ignore" {
       shutdown_service_excluded = "True"
   }
   network_interface {
-    network_interface_id = aws_network_interface.interface_ssh[count.index].id
+    network_interface_id = aws_network_interface.interface_ignore[count.index].id
     device_index         = 0
   }
 }
