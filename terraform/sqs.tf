@@ -42,7 +42,7 @@ POLICY
 resource "aws_sqs_queue" "get_instance_info_dl_queue" {
   name = "get_instance_info_dl_queue"
   tags = {
-    Environment = "Sara Angel-Murphy"
+    Candidate = "Sara Angel-Murphy"
   }
 }
 
@@ -117,7 +117,7 @@ POLICY
 resource "aws_sqs_queue" "stop_instance_dl_queue" {
   name = "stop_instance_dl_queue"
   tags = {
-    Environment = "Sara Angel-Murphy"
+    Candidate = "Sara Angel-Murphy"
   }
 }
 
@@ -190,7 +190,7 @@ POLICY
 resource "aws_sqs_queue" "terminate_instance_dl_queue" {
   name = "terminate_instance_dl_queue"
   tags = {
-    Environment = "Sara Angel-Murphy"
+    Candidate = "Sara Angel-Murphy"
   }
 }
 resource "aws_sqs_queue_policy" "terminate_instance_dl_queue_policy" {
@@ -262,7 +262,7 @@ POLICY
 resource "aws_sqs_queue" "lock_instance_dl_queue" {
   name = "lock_instance_dl_queue"
   tags = {
-    Environment = "Sara Angel-Murphy"
+    Candidate = "Sara Angel-Murphy"
   }
 }
 resource "aws_sqs_queue_policy" "lock_instance_dl_queue_policy" {
