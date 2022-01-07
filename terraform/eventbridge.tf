@@ -32,7 +32,7 @@ resource "aws_cloudwatch_event_target" "sqs" {
     }
     input_template = <<EOF
 {
-  \"<region>\": \"<instance>\"
+  "<region>": "<instance>"
 }
 EOF
   }
