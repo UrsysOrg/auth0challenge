@@ -32,8 +32,7 @@ resource "aws_cloudwatch_event_target" "sqs" {
     }
     input_template = <<EOF
 {
-  "instance_id": <instance>,
-  "region": <region>
+  \"<region>\": \"<instance>\"
 }
 EOF
   }
