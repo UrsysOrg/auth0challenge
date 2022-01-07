@@ -2,7 +2,7 @@
 
 resource "aws_sqs_queue" "get_instance_info_queue" {
   name                       = "get_instance_info_queue"
-  delay_seconds              = 5       # Testing our ability to receive messages in batches
+  delay_seconds              = 0       # We don't need any delays here
   max_message_size           = 262144  # 256k
   message_retention_seconds  = 1209600 # 14 days
   receive_wait_time_seconds  = 0       # Time ReceiveMessage should wait for a message to arrive
