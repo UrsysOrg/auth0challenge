@@ -83,20 +83,21 @@ def route_instance_message(instancelist):
     sqs_client = SqsClient(default_region)
     lock_queue_url = sqs_client.get_queue_url(lock_queue_name)
     stop_queue_url = sqs_client.get_queue_url(stop_queue_name)
-    if lock_queue_url and stop_queue_url:
-        for dict in instancelist:
-            for instance in dict:
-                message_body = json.dumps(instance)
-                if instance['action'] == 'lock':
-                    sqs_client.send_message(lock_queue_url, message_body)
-                    log.info("Sending to lock queue instance: {0}".format(instance['instance_id']))
-                    continue
-                elif instance['action'] == 'stop':
-                    sqs_client.send_message(stop_queue_url, message_body)
-                    log.info("Sending to stop queue instance: {0}".format(instance['instance_id']))
-                    continue
-                else:
-                    log.error("Unable to route instance message, unknown action: {0}".format(instance['action']))
+    if lock_queue_url and stop_queue_url == False:
+        raise Exception("Unable to get queue URLs for lock and stop queues, aborting...")
+    for dict in instancelist:
+        for instance in dict:
+            message_body = json.dumps(instance)
+            if instance['action'] == 'lock':
+                sqs_client.send_message(lock_queue_url, message_body)
+                log.info("Sending to lock queue instance: {0}".format(instance['instance_id']))
+                continue
+            elif instance['action'] == 'stop':
+                sqs_client.send_message(stop_queue_url, message_body)
+                log.info("Sending to stop queue instance: {0}".format(instance['instance_id']))
+                continue
+            else:
+                log.error("Unable to route instance message, unknown action: {0}".format(instance['action']))
     return
 
 # given an instance dict and its flag, evaluate whether to stop or lock
@@ -210,10 +211,12 @@ def lambda_handler(event, context):
     instance_map = defaultdict(list)
     instance_event_list = []
     for record in event['Records']:
-        # Easier to parse JSON in our logs than a python dict
         log.debug("Received Event Record Body {0}".format(record['body']))
         instance_event_dict = json.loads(record['body'])
         instance_event_list.append(instance_event_dict)
+    # Transform the event dict into a dict of regions and instance IDs
+    # Relies on defaultdict creating the key for region if it doesn't exist
+    # and appending all instance IDs that match as a list to that key.
     for dict in instance_event_list:
         instance_map[dict['region']].append(dict['instance_id'])
     # Begin the analysis
@@ -221,10 +224,10 @@ def lambda_handler(event, context):
     for region in instance_map:
         log.info("Checking instances in region: " + region)
         # Send the region, and the list of instance_ids associated with it to list_instances. Returns the response to the describe_instances API method
-        instance_response = list_instances(instance_map[region], region)
-        log.debug("Instance response: {0}".format(instance_response))
+        describe_instances_response = list_instances(instance_map[region], region)
+        log.debug("Instance response: {0}".format(describe_instances_response))
         # Analyze the instance details, and return a list of dicts with the instance ID, action, and flag which we append to our instance_list
-        instance_list.append(analyze_instances(instance_response, region))
+        instance_list.append(analyze_instances(describe_instances_response, region))
         log.debug("Instance list: {0}".format(instance_list))
     if len(instance_list) == 0:
         log.info("No instances to route, exiting.")
