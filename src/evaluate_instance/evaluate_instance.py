@@ -11,9 +11,9 @@ lock_queue_name = "lock_instance_queue"
 default_region  = "us-east-1"
 
 ### LOGGING
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("ec2_shutdown_logger")
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 
 ### CLASSES
 class SqsClient:
@@ -135,7 +135,7 @@ def has_ssh_open(security_groups):
             # We need to check if the SG Rule actually refers to an IP protocol vs a security group, otherwise we get a key error when evaluating
             if 'FromPort' in p and 'ToPort' in p:
                 if (p['FromPort'] == 22 or p['FromPort'] == -1) and (p['ToPort'] == 22 or p['ToPort'] == -1) and p['IpProtocol'] == 'tcp' and (p['IpRanges'][0]['CidrIp'] == '0.0.0.0/0' or p['IpRanges'][0]['CidrIp'] == '::/0'):
-                    return sg['GroupId']
+                    return True
     return False
 
 # Takes as input a dictionary of security groups, parses for rules, and returns True or False if HTTP is open
@@ -165,15 +165,16 @@ def check_security_groups(instance_id, security_group_ids, region):
 def check_tags(instance):
     instancedict = {}
     if 'Tags' in instance:
+        log.debug("instance: {0}" .format(instance))
         for t in instance['Tags']:
+            log.debug("tag: {0}" .format(t))
             if t['Key'] == 'shutdown_service_excluded' and t['Value'] == 'True':
                 instancedict = {'instance_id': instance['InstanceId'], 'action': 'skip', 'flag': 'excluded'}
                 return instancedict
-            instancedict = {'instance_id': instance['InstanceId'], 'action': 'analyze', 'flag': 'not_excluded'}
-            return instancedict
-    else:
-        instancedict = {'instance_id': instance['InstanceId'], 'action': 'analyze', 'flag': 'no_tags'}
-        return instancedict                                            
+            else:
+                continue
+    instancedict = {'instance_id': instance['InstanceId'], 'action': 'analyze', 'flag': 'no_exclusion_tags'}
+    return instancedict                                            
 
 # Accepts a dictionary containing instance details, returns a list of dicts with the instance ID, action, and flag
 def analyze_instances(response, region):
@@ -184,7 +185,9 @@ def analyze_instances(response, region):
             # If the instance is already stopped by some other cause, we don't need to try again.
             if i['State']['Name'] == 'running':
                 # CHECK TAGS
+                log.info("Checking tags...")
                 instance_tag_dict = check_tags(i)
+                log.debug("Instance tag dict: {0}".format(instance_tag_dict))
                 if instance_tag_dict['action'] == 'skip':
                     log.info("Skipping instance {0} due to exclusion tag...".format(i['InstanceId']))
                     continue
@@ -239,7 +242,7 @@ def lambda_handler(event, context):
         # Analyze the instance details, and return a list of dicts with the instance ID, action, and flag which we append to our instance_list
         instance_list.append(analyze_instances(describe_instances_response, region))
         log.debug("Instance list: {0}".format(instance_list))
-    if len(instance_list) == 0:
+    if len(instance_list[0]) == 0:
         log.info("No instances to route, exiting.")
         return
     else:
