@@ -89,6 +89,7 @@ def route_instance_message(instancelist):
         for instance in dict:
             # on success or failure, we continue to the next instance in the dict
             message_body = json.dumps(instance)
+            log.debug("Sending message: {0}".format(message_body))
             # For instances that are being stopped, we can safely fail to the lock queue
             if instance['action'] == 'stop':
                 response = sqs_client.send_message(stop_queue_url, message_body)
@@ -233,6 +234,7 @@ def lambda_handler(event, context):
     for dict in instance_event_list:
         instance_map[dict['region']].append(dict['instance_id'])
     # Begin the analysis
+    # We need to store the list here, since each region will have a different list of instances
     instance_list = []
     for region in instance_map:
         log.info("Checking instances in region: " + region)
