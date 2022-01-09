@@ -84,18 +84,28 @@ def route_instance_message(instancelist):
     lock_queue_url = sqs_client.get_queue_url(lock_queue_name)
     stop_queue_url = sqs_client.get_queue_url(stop_queue_name)
     if lock_queue_url and stop_queue_url == False:
-        raise Exception("Unable to get queue URLs for lock and stop queues, aborting...")
+        raise ValueError("Unable to get queue URLs for lock and stop queues, aborting...")
     for dict in instancelist:
         for instance in dict:
+            # on success or failure, we continue to the next instance in the dict
             message_body = json.dumps(instance)
+            # For instances that are being stopped, we can safely fail to the lock queue
+            if instance['action'] == 'stop':
+                response = sqs_client.send_message(stop_queue_url, message_body)
+                if response:
+                    continue
+                else:
+                    log.warn("Unable to send message to stop queue, attempting lock...")
+                    response = sqs_client.send_message(lock_queue_url, message_body)
+                    continue
+            # For instances that are being locked, we have no failure options but the dead letter queue
             if instance['action'] == 'lock':
-                sqs_client.send_message(lock_queue_url, message_body)
-                log.info("Sending to lock queue instance: {0}".format(instance['instance_id']))
-                continue
-            elif instance['action'] == 'stop':
-                sqs_client.send_message(stop_queue_url, message_body)
-                log.info("Sending to stop queue instance: {0}".format(instance['instance_id']))
-                continue
+                response = sqs_client.send_message(lock_queue_url, message_body)
+                if response:
+                    continue
+                else:
+                    log.error("Unable to send message to lock queue, aborting...")
+                    continue
             else:
                 log.error("Unable to route instance message, unknown action: {0}".format(instance['action']))
     return
