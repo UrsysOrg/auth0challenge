@@ -2,6 +2,25 @@ resource "aws_cloudwatch_event_bus" "ec2_shutdown_bus" {
   name = "ec2-shutdown-bus"
 }
 
+data "aws_iam_policy_document" "allow_multiregion_resource_policy" {
+  statement {
+    sid    = "MultiRegionalAccountAccess"
+    effect = "Allow"
+    actions = [
+      "events:PutEvents",
+    ]
+    resources = [
+      "arn:aws:events:eu-west-1:123456789012:event-bus/ec2-shutdown-bus",
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["${var.account_id}"]
+    }
+  }
+}
+
+
 resource "aws_cloudwatch_event_rule" "instance_id" {
   name           = "capture-instance-id"
   description    = "Capture each Running Instance's ID"
@@ -54,7 +73,7 @@ data "aws_iam_policy_document" "put_events_policy_document_us_west" {
   statement {
     effect    = "Allow"
     actions   = ["events:PutEvents"]
-    resources = ["arn:aws:events:us-east-1:201973737062:event-bus/ec2-shutdown-bus"]
+    resources = ["arn:aws:events:us-east-1:${var.account_id}:event-bus/ec2-shutdown-bus"]
   }
 }
 
