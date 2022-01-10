@@ -39,14 +39,6 @@ data "aws_iam_policy_document" "allow_multiregion_resource_policy" {
     resources = [
       "arn:aws:events:eu-west-1:${var.account_id}:event-bus/ec2-shutdown-bus",
     ]
-
-# AWS automatically changes the ARN to the role unique principal ID when you save the policy, see: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html#principal-roles
-    lifecycle {
-      ignore_changes = [
-        "resources"
-      ]
-    }
-
     principals {
       type        = "AWS"
       identifiers = ["${aws_iam_role.assume_send_events_role.arn}"]
@@ -55,6 +47,8 @@ data "aws_iam_policy_document" "allow_multiregion_resource_policy" {
 }
 
 resource "aws_cloudwatch_event_bus_policy" "allow_multiregion_events_policy" {
+  # AWS automatically changes the ARN to the role unique principal ID when you save the policy, see: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html#principal-roles
+  # We can ignore changes to this on plan.
   event_bus_name = "${aws_cloudwatch_event_bus.ec2_shutdown_bus.name}"
   policy = "${data.aws_iam_policy_document.allow_multiregion_resource_policy.json}"
 }
@@ -106,6 +100,8 @@ EOF
 ### MULTI-REGION
 # To add additional regions, copy and paste and change:
 # provider name, resource name
+# Terraform does not allow iterating over providers because it associates resources with providers prior to all other processing
+# There is a for_each in the provider configuration reserved for a future use of terraform
 
 ### US WEST 1
 resource "aws_iam_policy" "put_events_policy_us_west" {
