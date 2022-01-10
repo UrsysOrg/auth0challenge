@@ -52,7 +52,7 @@ class Ec2Client:
             if error.response['Error']['Code'] == 'InvalidGroup.Duplicate':
                 # TODO: Move this before the create_dummy_security_group call
                 dummy_response = self.get_security_group_ids(filter=[{'Name': 'group-name', 'Values': ['dummy_security_group ' + instance_id]}])
-                log.info("Found existing dummy security group: {0}, returning ID".format(dummy_response))
+                log.info("Found existing dummy security group: {0}, returning ID".format(dummy_response['SecurityGroups'][0]['GroupId']))
                 return dummy_response['SecurityGroups'][0]['GroupId']
             log.error("Unable to create dummy security group, error: {0}".format(error))
             raise ValueError("Unable to create dummy security group, error: {0}".format(error))
@@ -109,7 +109,7 @@ def lock_ssh(instance_dict, filter):
         ssh_group_list.append(sg['GroupId'])
     log.info("Bad group list: {}".format(ssh_group_list))
     # Remove the flagged open SSH security groups from the list
-    new_sg_list = remove_duplicates(instance_dict['security_group_ids'], ssh_group_list)
+    new_sg_list = list(remove_duplicates(instance_dict['security_group_ids'], ssh_group_list))
     # add dummy sg ID to the list
     new_sg_list.append(ec2_client.create_dummy_security_group(instance_dict['instance_id'], instance_dict['vpc_id']))
     # call modify_security_groups
@@ -123,7 +123,7 @@ def lock_default(instance_dict, filter):
     for sg in response['SecurityGroups']:
         default_group_list.append(sg['GroupId'])
     log.info("Bad group list: {}".format(default_group_list))
-    new_sg_list = remove_duplicates(instance_dict['security_group_ids'], default_group_list)
+    new_sg_list = list(remove_duplicates(instance_dict['security_group_ids'], default_group_list))
     new_sg_list.append(ec2_client.create_dummy_security_group(instance_dict['instance_id'], instance_dict['vpc_id']))
     log.info("New SG list: {}".format(new_sg_list))
     modify_security_groups(new_sg_list, instance_dict['instance_id'], instance_dict['region'])
@@ -185,9 +185,4 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'body': json.dumps('Instances processed successfully!')
     }
-
-
-### LOCAL TESTING
-#if __name__ == '__main__':
-#    event = {'Records': [{'messageId': '14281587-12ea-4717-a939-10bdc9df1f2c', 'receiptHandle': 'AQEBViyglCRntzWowBRVZS4cfTVarGHVBuYG/9k15TffeDn8I9EaSOluBNTL3dkKva81M1E5EeyYzp50KyHJOm/PmIh78NfoJFuQO4b9Q36FdnaU3o1gl8lajNjW0uHRDFDlLUudJsDn+N3ErA4HeZeZbFBMMa5zhvzqfAFOOWFrHyQ/nCGOvwS/Xb3sohbO8zV+pdVDRH4yGDVJOc3iq9O7ZzJR9Hib9y2A2dOzyliFd9shU4cG7rhXmFAcNEVsmVMiF1aN/8KV+i2TNb03hyEAFM1pHQv9ks0owwMEAEM2CPacujPXUp9aS5FmLq6inWDCkj7NVJcRRlxrHmcwckjs7sC0Tw7IQCqurCiN3atGSYF5BmZv6raJr9sWeBkVt/qI8r70q/h1nKr+6OQumW1OeQ==', 'body': '{"instance_id": "i-045f97c8a6021e2de", "action": "stop", "flag": "both", "security_group_ids": ["sg-023ad61b9955eaca4"], "vpc_id": "vpc-03420aacb89ba100f", "region": "us-east-1"}', 'attributes': {'ApproximateReceiveCount': '1', 'SentTimestamp': '1641767367754', 'SenderId': 'AIDAS6BUSUZTPW4YGHT7Z', 'ApproximateFirstReceiveTimestamp': '1641767367755'}, 'messageAttributes': {}, 'md5OfBody': '65e1c52a71caeac7b1a0710db6f5bfe0', 'eventSource': 'aws:sqs', 'eventSourceARN': 'arn:aws:sqs:us-east-1:201973737062:lock_instance_queue', 'awsRegion': 'us-east-1'}]}
-#    lambda_handler(event, "foo")
+    

@@ -11,9 +11,9 @@ lock_queue_name = "lock_instance_queue"
 default_region  = "us-east-1"
 
 ### LOGGING
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("ec2_shutdown_logger")
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 ### CLASSES
 class SqsClient:
@@ -254,8 +254,3 @@ def lambda_handler(event, context):
             'statusCode': 200,
             'body': json.dumps('Instances processed successfully!')
         }
-
-### LOCAL TESTING
-#if __name__ == '__main__':
-#    event = {'Records': [{'body': '{"instance_id": "i-052de5ca5310890a9", "region": "us-east-1"}'}]}
-#    lambda_handler(event, "foo")
