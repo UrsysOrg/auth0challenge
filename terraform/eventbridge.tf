@@ -76,9 +76,6 @@ resource "aws_cloudwatch_event_bus_policy" "allow_multiregion_events_policy" {
 resource "aws_cloudwatch_event_rule" "capture_ec2_remote_us_east" {
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
@@ -103,9 +100,6 @@ resource "aws_cloudwatch_event_rule" "instance_id" {
   name           = "capture-instance-id"
   description    = "Capture each Running Instance's ID"
   event_bus_name = aws_cloudwatch_event_bus.ec2_shutdown_bus.name
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
@@ -156,9 +150,6 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_us_west" {
   provider    = aws.uswest1
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
@@ -183,9 +174,7 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_us_east_2" {
   provider    = aws.useast2
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
+
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
@@ -210,9 +199,6 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_us_west2" {
   provider    = aws.uswest2
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
@@ -237,9 +223,6 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_ap_south_1" {
   provider    = aws.apsouth1
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
@@ -264,9 +247,6 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_ap_southeast_1" {
   provider    = aws.apsoutheast1
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
@@ -291,9 +271,6 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_ap_southeast_2" {
   provider    = aws.apsoutheast2
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
@@ -318,9 +295,6 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_ap_northeast_1" {
   provider    = aws.apnortheast1
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
@@ -345,9 +319,6 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_ap_northeast_2" {
   provider    = aws.apnortheast2
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
@@ -372,9 +343,6 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_ap_northeast_3" {
   provider    = aws.apnortheast3
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
@@ -399,9 +367,6 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_ca_central_1" {
   provider    = aws.cacentral1
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
@@ -426,9 +391,6 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_eu_central_1" {
   provider    = aws.eucentral1
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
@@ -453,9 +415,6 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_eu_west_1" {
   provider    = aws.euwest1
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
@@ -480,10 +439,6 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_eu_west_2" {
   provider    = aws.euwest2
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
-
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
     "detail-type" : ["EC2 Instance State-change Notification"],
@@ -507,9 +462,6 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_eu_west_3" {
   provider    = aws.euwest3
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
@@ -534,10 +486,6 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_eu_north_1" {
   provider    = aws.eunorth1
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
-
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
     "detail-type" : ["EC2 Instance State-change Notification"],
@@ -561,9 +509,6 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_sa_east_1" {
   provider    = aws.saeast1
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 
   event_pattern = jsonencode({
     "source" : ["aws.ec2"],
