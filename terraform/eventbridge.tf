@@ -40,6 +40,13 @@ data "aws_iam_policy_document" "allow_multiregion_resource_policy" {
       "arn:aws:events:eu-west-1:${var.account_id}:event-bus/ec2-shutdown-bus",
     ]
 
+# AWS automatically changes the ARN to the role unique principal ID when you save the policy, see: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html#principal-roles
+    lifecycle {
+      ignore_changes = [
+        "resources"
+      ]
+    }
+
     principals {
       type        = "AWS"
       identifiers = ["${aws_iam_role.assume_send_events_role.arn}"]
@@ -97,6 +104,10 @@ EOF
 }
 
 ### MULTI-REGION
+# To add additional regions, copy and paste and change:
+# provider name, resource name
+
+### US WEST 1
 resource "aws_iam_policy" "put_events_policy_us_west" {
   provider    = aws.uswest1
   name        = "event-bus-invoke-remote-event-bus"
@@ -129,6 +140,86 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_us_west" {
 
 resource "aws_cloudwatch_event_target" "send_to_remote_us_west" {
   provider  = aws.uswest1
+  target_id = "SendToRemoteBus"
+  arn       = aws_cloudwatch_event_bus.ec2_shutdown_bus.arn
+  role_arn  = aws_iam_role.assume_send_events_role.arn
+  rule      = aws_cloudwatch_event_rule.capture_ec2_remote_us_west.name
+}
+
+### US EAST 2
+
+resource "aws_iam_policy" "put_events_policy_us_east_2" {
+  provider    = aws.useast2
+  name        = "event-bus-invoke-remote-event-bus"
+  description = "event-bus-invoke-remote-event-bus"
+  policy      = data.aws_iam_policy_document.put_events_policy_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "event_bus_invoke_remote_event_bus_policy_attachment_us_east_2" {
+  provider   = aws.useast2
+  role       = aws_iam_role.assume_send_events_role.name
+  policy_arn = aws_iam_policy.put_events_policy_us_west.arn
+}
+
+resource "aws_cloudwatch_event_rule" "capture_ec2_remote_us_east_2" {
+  provider       = aws.useast2
+  name           = "capture-ec2-remote"
+  description    = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
+  tags = {
+    Candidate = "Sara Angel-Murphy"
+  }
+
+  event_pattern = jsonencode({
+    "source" : ["aws.ec2"],
+    "detail-type" : ["EC2 Instance State-change Notification"],
+    "detail" : {
+      "state" : ["running"]
+    }
+  })
+}
+
+resource "aws_cloudwatch_event_target" "send_to_remote_us_east_2" {
+  provider  = aws.useast2
+  target_id = "SendToRemoteBus"
+  arn       = aws_cloudwatch_event_bus.ec2_shutdown_bus.arn
+  role_arn  = aws_iam_role.assume_send_events_role.arn
+  rule      = aws_cloudwatch_event_rule.capture_ec2_remote_us_west.name
+}
+
+### US WEST 2
+
+resource "aws_iam_policy" "put_events_policy_us_west2" {
+  provider    = aws.uswest2
+  name        = "event-bus-invoke-remote-event-bus"
+  description = "event-bus-invoke-remote-event-bus"
+  policy      = data.aws_iam_policy_document.put_events_policy_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "event_bus_invoke_remote_event_bus_policy_attachment_us_west2" {
+  provider   = aws.uswest2
+  role       = aws_iam_role.assume_send_events_role.name
+  policy_arn = aws_iam_policy.put_events_policy_us_west.arn
+}
+
+resource "aws_cloudwatch_event_rule" "capture_ec2_remote_us_west2" {
+  provider       = aws.uswest2
+  name           = "capture-ec2-remote"
+  description    = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
+  tags = {
+    Candidate = "Sara Angel-Murphy"
+  }
+
+  event_pattern = jsonencode({
+    "source" : ["aws.ec2"],
+    "detail-type" : ["EC2 Instance State-change Notification"],
+    "detail" : {
+      "state" : ["running"]
+    }
+  })
+}
+
+resource "aws_cloudwatch_event_target" "send_to_remote_us_west2" {
+  provider  = aws.uswest2
   target_id = "SendToRemoteBus"
   arn       = aws_cloudwatch_event_bus.ec2_shutdown_bus.arn
   role_arn  = aws_iam_role.assume_send_events_role.arn
