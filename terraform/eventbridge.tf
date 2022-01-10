@@ -54,7 +54,7 @@ data "aws_iam_policy_document" "put_events_policy_document_us_west" {
   statement {
     effect    = "Allow"
     actions   = ["events:PutEvents"]
-    resources = ["arn:aws:events:us-west-2:201973737062:event-bus/*"]
+    resources = ["arn:aws:events:us-east-1:201973737062:event-bus/ec2-shutdown-bus"]
   }
 }
 

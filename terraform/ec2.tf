@@ -172,7 +172,6 @@ resource "aws_security_group" "open_ssh_west" {
     Candidate = "Sara Angel-Murphy"
   }
 }
-
 resource "aws_network_interface" "interface_ignore" {
   provider        = aws.uswest1
   count           = local.instance_count
@@ -195,6 +194,51 @@ resource "aws_instance" "instance_ignore" {
   }
   network_interface {
     network_interface_id = aws_network_interface.interface_ignore[count.index].id
+    device_index         = 0
+  }
+}
+resource "aws_network_interface" "interface_default_west" {
+  count     = local.instance_count
+  subnet_id = aws_subnet.subnet_west.id
+  tags = {
+    Candidate = "Sara Angel-Murphy"
+  }
+}
+
+resource "aws_instance" "instance_default_west" {
+  count         = local.instance_count
+  ami           = data.aws_ami.ubuntu_us_west_1.id
+  instance_type = "t2.micro"
+
+  network_interface {
+    network_interface_id = aws_network_interface.interface_default_west[count.index].id
+    device_index         = 0
+  }
+  tags = {
+    Name      = "ec2_instance_default_sg"
+    Candidate = "Sara Angel-Murphy"
+  }
+}
+
+resource "aws_network_interface" "interface_ssh_west" {
+  count           = local.instance_count
+  subnet_id       = aws_subnet.subnet_west.id
+  security_groups = [aws_security_group.open_ssh_west.id]
+  tags = {
+    Candidate = "Sara Angel-Murphy"
+  }
+}
+
+resource "aws_instance" "instance_ssh_west" {
+  count         = local.instance_count
+  ami           = data.aws_ami.ubuntu_us_west_1.id
+  instance_type = "t2.micro"
+  tags = {
+    Name      = "ec2_instance_ssh_open_sg"
+    Candidate = "Sara Angel-Murphy"
+  }
+  network_interface {
+    network_interface_id = aws_network_interface.interface_ssh_west[count.index].id
     device_index         = 0
   }
 }
