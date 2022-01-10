@@ -1,7 +1,7 @@
 FROM public.ecr.aws/lambda/python:3.9
 
 # Copy function code
-COPY lock_instance.py ${LAMBDA_TASK_ROOT}
+COPY stop_instance.py ${LAMBDA_TASK_ROOT}
 
 # Install the function's dependencies using file requirements.txt
 # from your project folder.
