@@ -198,7 +198,7 @@ resource "aws_instance" "instance_ignore" {
   }
 }
 resource "aws_network_interface" "interface_default_west" {
-  provider        = aws.uswest1
+  provider  = aws.uswest1
   count     = local.instance_count
   subnet_id = aws_subnet.subnet_west.id
   tags = {
@@ -207,7 +207,7 @@ resource "aws_network_interface" "interface_default_west" {
 }
 
 resource "aws_instance" "instance_default_west" {
-  provider        = aws.uswest1
+  provider      = aws.uswest1
   count         = local.instance_count
   ami           = data.aws_ami.ubuntu_us_west_1.id
   instance_type = "t2.micro"
@@ -233,7 +233,7 @@ resource "aws_network_interface" "interface_ssh_west" {
 }
 
 resource "aws_instance" "instance_ssh_west" {
-  provider        = aws.uswest1
+  provider      = aws.uswest1
   count         = local.instance_count
   ami           = data.aws_ami.ubuntu_us_west_1.id
   instance_type = "t2.micro"
