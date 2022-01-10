@@ -4,7 +4,10 @@
 name: Python application
 
 # Triggers the workflow on push or pull request events
-on: push
+on: 
+  push:
+    paths:
+    - 'src/**'
 
 jobs:
   build:
