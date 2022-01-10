@@ -1,9 +1,7 @@
 import json
 import logging
-from warnings import filters
 import boto3
 from botocore.exceptions import ClientError
-import re
 
 logging.basicConfig(level=logging.INFO)
 
@@ -16,16 +14,18 @@ log.setLevel(logging.INFO)
 #  'action': 'lock',
 #  'security_group_ids': ['sg-0c8f8f8f8f8f8f8f8', 'sg-0c8f8f8f8f8f8f8f8'],
 #  'vpc_id': 'vpc-0c8f8f8f8f8f8f8f8',
-#  'region': 'us-east-1'  
+#  'region': 'us-east-1'
 #  'flag': 'ssh | default | both'
 #}
 
 class Ec2Client:
+    '''Instantiates a new EC2 client for making API calls'''
     def __init__(self, region):
         self.client = boto3.client('ec2', region_name=region)
         self.region = region
-        
+
     def get_security_group_ids(self, filter):
+        '''Accepts as input the filter to use in the describe_security_groups call'''
         try:
             log.info("Getting security groups, filter: {0}".format(filter))
             response = self.client.describe_security_groups(Filters=filter)
@@ -33,11 +33,12 @@ class Ec2Client:
             return response
         except ClientError as error:
             raise ValueError("Unable to describe security groups, error: {0}".format(error))
-                
-    # We want to remove the SSH and default SGs, but what happens if they are the only security groups attached to the instance?
-    # in that case, we need to create a new SG that does effectively nothing.
-    # returns the new SG ID as a list
+
     def create_dummy_security_group(self, instance_id, vpc_id):
+        '''Creates a dummy security group for the instance
+        We want to remove access to the SSH and default SGs, but can't do so if
+        they are the only security groups attached to the instance.
+        This method creates a security group which effectively does nothing,'''
         try:
             log.info("Creating dummy security group for instance: {0}".format(instance_id))
             response = self.client.create_security_group(
@@ -56,10 +57,10 @@ class Ec2Client:
                 return dummy_response['SecurityGroups'][0]['GroupId']
             log.error("Unable to create dummy security group, error: {0}".format(error))
             raise ValueError("Unable to create dummy security group, error: {0}".format(error))
-    
-    # To create a security group that effectively does nothing, create a rule which allows inbound/egress traffic to the new SG
-    # this is ironically the exact behaviour of the VPC default security group, but since it's unique to the instance, it's fine in this case.
+
     def authorize_rule_for_dummy_group(self, sg_id):
+        '''To create a security group that does nothing, create a rule which allows egress traffic to the new SG
+        This is similar behaviour to the VPC default SG, but since it's unique to the instance, we don't permit unnecessary access.'''
         try:
             response = self.client.authorize_security_group_egress(
                 GroupId=sg_id,
@@ -70,19 +71,20 @@ class Ec2Client:
         except ClientError as error:
             log.error("Unable to authorize rule for dummy security group, error: {0}".format(error))
             raise ValueError("Unable to create authorize rule for dummy security group, error: {0}".format(error))
-    
+
     # Accepts a lsit of security group IDs and an instance ID, modifies the instance to have the listed security groups
     def modify_security_groups(self, sg_ids, instance_id):
+        '''Accepts a list of security group IDs and an instance ID,
+        modifies the instance to have the listed security groups'''
         try:
             response = self.client.modify_instance_attribute(InstanceId=instance_id, Groups=sg_ids)
             log.info("Modified security groups: {0}".format(response))
             return response
         except ClientError as error:
             raise ValueError("Unable to modify security groups, error: {0}".format(error))
-        
-    
-# Calls the EC2 API to lock the instance by modifying security groups
+
 def modify_security_groups(sg_ids, instance_id, region):
+    '''Calls modify_security_groups on the EC2 client'''
     try:
         ec2_client = Ec2Client(region)
         response = ec2_client.modify_security_groups(sg_ids, instance_id)
@@ -90,23 +92,22 @@ def modify_security_groups(sg_ids, instance_id, region):
         return "Successfully Locked Instance"
     except ClientError as error:
         raise ValueError("Unable to modify security groups, error: {0}".format(error))
-    
-# Compare the list of previous instance security groups to the list of bad security groups
-# convert lists to sets and remove duplicates from instance_dict['security_group_ids'] set
-# returns a new list with only the security groups that are not in the bad_group_list set
+
 def remove_duplicates(input_list, bad_group_list):
+    '''Compares the list of previous security groups to the list of bad security groups
+    converts lists to sets and removes duplicates from instance_dict['security_group_ids'] set
+    returns a new list with only the security groups that are not in the bad_group_list set'''
     new_list = set(input_list).difference(set(bad_group_list))
     return new_list
 
-# Accepts the instance dict as an input, gets the security groups with open SSH, creates a new dummy security group
-# Modifies the instance to have dummy SG + non-SSH allowing SGs
-# returns "successfully locked instance" or error message
 def lock_ssh(instance_dict, filter):
+    '''Accepts the instance dict as an input, gets the security groups ids with open ssh,
+    locks the instance by removing the bad SG and adding the dummy SG'''
     ssh_group_list = []
     ec2_client = Ec2Client(instance_dict['region'])
     response = ec2_client.get_security_group_ids(filter)
-    for sg in response['SecurityGroups']:
-        ssh_group_list.append(sg['GroupId'])
+    for security_group in response['SecurityGroups']:
+        ssh_group_list.append(security_group['GroupId'])
     log.info("Bad group list: {}".format(ssh_group_list))
     # Remove the flagged open SSH security groups from the list
     new_sg_list = list(remove_duplicates(instance_dict['security_group_ids'], ssh_group_list))
@@ -117,21 +118,24 @@ def lock_ssh(instance_dict, filter):
     return
 
 def lock_default(instance_dict, filter):
+    '''Accepts the instance dict as an input, gets the security group id for the default SG,
+    locks the instance by removing the default SG and creating a new dummy security group'''
     default_group_list = []
     ec2_client = Ec2Client(instance_dict['region'])
     response = ec2_client.get_security_group_ids(filter)
-    for sg in response['SecurityGroups']:
-        default_group_list.append(sg['GroupId'])
+    for security_group in response['SecurityGroups']:
+        default_group_list.append(security_group['GroupId'])
     log.info("Bad group list: {}".format(default_group_list))
     new_sg_list = list(remove_duplicates(instance_dict['security_group_ids'], default_group_list))
     new_sg_list.append(ec2_client.create_dummy_security_group(instance_dict['instance_id'], instance_dict['vpc_id']))
     log.info("New SG list: {}".format(new_sg_list))
     modify_security_groups(new_sg_list, instance_dict['instance_id'], instance_dict['region'])
-    return    
+    return 
 
 # TODO: Instead of repeating the same logic, can we reorganize lock_ssh and lock_default to be more DRY?
 # This would require moving the "create_dummy_security_group" method out of the functions
 def lock_both(instance_dict, filterdefault, filterssh):
+    '''If the instance has both open SSH and default security groups, lock both'''
     get_default_sg_filter = filterdefault
     get_ssh_sg_filter = filterssh
     group_list = []
@@ -139,23 +143,23 @@ def lock_both(instance_dict, filterdefault, filterssh):
     # Query for default group IDs
     default_response = ec2_client.get_security_group_ids(get_default_sg_filter)
     log.info("Default group list: {}".format(default_response))
-    for sg in default_response['SecurityGroups']:
-        log.info("SG: {}".format(sg))
-        group_list.append(sg['GroupId'])
+    for security_group in default_response['SecurityGroups']:
+        log.info("SG: {}".format(security_group))
+        group_list.append(security_group['GroupId'])
     # Query for SSH Group IDs
     ssh_response = ec2_client.get_security_group_ids(get_ssh_sg_filter)
-    for sg in ssh_response['SecurityGroups']:
-        group_list.append(sg['GroupId'])
+    for security_group in ssh_response['SecurityGroups']:
+        group_list.append(security_group['GroupId'])
     # Remove the flag groups from the list
     log.info("Bad Group list: {}".format(group_list))
     new_sg_list = list(remove_duplicates(instance_dict['security_group_ids'], group_list))
     new_sg_list.append(ec2_client.create_dummy_security_group(instance_dict['instance_id'], instance_dict['vpc_id']))
     # Modify instance with the good SG list
     modify_security_groups(new_sg_list, instance_dict['instance_id'], instance_dict['region'])
-    return
 
 # Accepts the instance dict as input, sets our filters, and calls the appropriate lock function
 def lock_instance(instance_dict):
+    '''Accepts the instance dict as input, sets filters, and calls the appropriate lock function'''
     get_default_sg_filter = [{'Name': 'vpc-id', 'Values': [instance_dict['vpc_id']], 'Name': 'group-name', 'Values': ['default']}]
     get_ssh_sg_filter = [{'Name': 'vpc-id', 'Values': [instance_dict['vpc_id']], 'Name': 'ip-permission.to-port', 'Values': ['22', '-1'], 'Name': 'ip-permission.cidr', 'Values': ['0.0.0.0/0'], 'Name': 'ip-permission.ipv6-cidr', 'Values': ['::/0']}]
     if instance_dict['flag'] == 'ssh':
@@ -167,15 +171,12 @@ def lock_instance(instance_dict):
     elif instance_dict['flag'] == 'both':
         lock_both(instance_dict, get_default_sg_filter, get_ssh_sg_filter)
         return True
-    else:
-        log.warn("No flag found for instance {0}, review evaluate_instance/lambda logs".format(instance_dict['instance_id']))
-        return False
-        
-        
+    log.error("No flag found for instance {0}, review evaluate_instance/lambda logs".format(instance_dict['instance_id']))
+    return False
+
 def lambda_handler(event, context):
-    # We receive an event body, which contains the instance id, region, 
-    # other flags we only care about on lock
-    # We can expect only one record in event['Records']
+    '''Receives an event body containing instance id, region, and other flags.
+    We can expect only one record in event['Records']'''
     for record in event['Records']:
         log.info("Received record body: {}".format(record['body']))
         instance_dict = json.loads(record['body'])
@@ -185,4 +186,3 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'body': json.dumps('Instances processed successfully!')
     }
-    
