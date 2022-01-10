@@ -23,11 +23,11 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias = "apsoutheast1"
+  alias  = "apsoutheast1"
   region = "ap-southeast-1"
 }
 provider "aws" {
-  alias = "apsoutheast2"
+  alias  = "apsoutheast2"
   region = "ap-southeast-2"
 }
 
