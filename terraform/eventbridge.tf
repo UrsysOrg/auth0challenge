@@ -23,6 +23,7 @@ resource "aws_cloudwatch_event_target" "sqs" {
   rule      = aws_cloudwatch_event_rule.instance_id.name
   target_id = "SendToSQS"
   arn       = aws_sqs_queue.get_instance_info_queue.arn
+  event_bus_name = aws_cloudwatch_event_bus.ec2_shutdown_bus.name
   retry_policy {
     maximum_retry_attempts       = "2"
     maximum_event_age_in_seconds = "600"
@@ -52,7 +53,7 @@ data "aws_iam_policy_document" "put_events_policy_document_us_west" {
   provider = aws.uswest1
   statement {
     effect    = "Allow"
-    actions   = ["events.PutEvents"]
+    actions   = ["events:PutEvents"]
     resources = ["${aws_cloudwatch_event_bus.ec2_shutdown_bus.arn}"]
   }
 }
@@ -113,6 +114,7 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_us_west" {
 }
 
 resource "aws_cloudwatch_event_target" "send_to_remote_us_west" {
+  event_bus_name = aws_cloudwatch_event_bus.bus_route_to_remote_us_west.name
   provider  = aws.uswest1
   target_id = "SendToRemoteBus"
   arn       = aws_cloudwatch_event_bus.ec2_shutdown_bus.arn
