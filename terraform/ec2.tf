@@ -1,5 +1,5 @@
 locals {
-  instance_count = 2
+  instance_count = 20
 }
 
 ### US EAST
@@ -156,14 +156,14 @@ resource "aws_security_group" "open_ssh_west" {
 }
 resource "aws_network_interface" "interface_ignore" {
   provider        = aws.uswest1
-  count           = local.instance_count
+  count           = 2
   subnet_id       = aws_subnet.subnet_west.id
   security_groups = [aws_security_group.open_ssh_west.id]
 }
 
 resource "aws_instance" "instance_ignore" {
   provider      = aws.uswest1
-  count         = local.instance_count
+  count         = 2
   ami           = data.aws_ami.ubuntu_us_west_1.id
   instance_type = "t2.micro"
   tags = {
