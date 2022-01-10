@@ -1,5 +1,5 @@
 locals {
-  instance_count = 20
+  instance_count = 50
 }
 
 ### US EAST
