@@ -72,6 +72,29 @@ resource "aws_cloudwatch_event_bus_policy" "allow_multiregion_events_policy" {
   policy         = data.aws_iam_policy_document.allow_multiregion_resource_policy.json
 }
 
+### Deliver EC2 State Changes to own event bus
+resource "aws_cloudwatch_event_rule" "capture_ec2_remote_us_east" {
+  name        = "capture-ec2-remote"
+  description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
+  tags = {
+    Candidate = "Sara Angel-Murphy"
+  }
+
+  event_pattern = jsonencode({
+    "source" : ["aws.ec2"],
+    "detail-type" : ["EC2 Instance State-change Notification"],
+    "detail" : {
+      "state" : ["running"]
+    }
+  })
+}
+
+resource "aws_cloudwatch_event_target" "send_to_remote_us_east" {
+  target_id = "SendToRemoteBus"
+  arn       = aws_cloudwatch_event_bus.ec2_shutdown_bus.arn
+  role_arn  = aws_iam_role.assume_send_events_role.arn
+  rule      = aws_cloudwatch_event_rule.capture_ec2_remote_us_east.name
+}
 
 ### DESTINATION EVENT RULE
 
