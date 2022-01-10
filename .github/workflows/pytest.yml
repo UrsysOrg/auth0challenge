@@ -11,6 +11,8 @@ on:
     - 'tests/**'
     - 'setup.py'
     - '.github/workflows/pytest.yml'
+    - 'Pipfile*'
+    - 'requirements*'
 
 jobs:
   build:
