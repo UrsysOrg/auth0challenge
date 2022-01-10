@@ -1,0 +1,70 @@
+{
+    "SecurityGroups": [
+        {
+            "Description": "Open SSH from World",
+            "GroupName": "Open SSH from World",
+            "IpPermissions": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [
+                        {
+                            "CidrIpv6": "::/0"
+                        }
+                    ],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "201973737062",
+            "GroupId": "sg-023ad61b9955eaca4",
+            "IpPermissionsEgress": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [
+                        {
+                            "CidrIpv6": "::/0"
+                        }
+                    ],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "Tags": [
+                {
+                    "Key": "Candidate",
+                    "Value": "Sara Angel-Murphy"
+                }
+            ],
+            "VpcId": "vpc-03420aacb89ba100f"
+        }
+    ],
+    "ResponseMetadata": {
+        "RequestId": "ba74017f-47d9-4756-96ea-6d8e0ad7f67a",
+        "HTTPStatusCode": 200,
+        "HTTPHeaders": {
+            "x-amzn-requestid": "ba74017f-47d9-4756-96ea-6d8e0ad7f67a",
+            "cache-control": "no-cache, no-store",
+            "strict-transport-security": "max-age=31536000; includeSubDomains",
+            "vary": "accept-encoding",
+            "content-type": "text/xml;charset=UTF-8",
+            "content-length": "2101",
+            "date": "Fri, 07 Jan 2022 06:45:46 GMT",
+            "server": "AmazonEC2"
+        },
+        "RetryAttempts": 0
+    }
+}
