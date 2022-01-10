@@ -9,6 +9,7 @@ on:
     paths:
     - 'src/**'
     - 'tests/**'
+    - 'setup.py'
 
 jobs:
   build:
@@ -41,6 +42,7 @@ jobs:
         if: steps.cache-pipenv.outputs.cache-hit != 'true'
         run: |
           pipenv install --deploy --dev
+          pipenv run pip install -e .
       - name: Run test suite
         run: |
-          pipenv run python -m pytest -v
+          pipenv run pytest -v
