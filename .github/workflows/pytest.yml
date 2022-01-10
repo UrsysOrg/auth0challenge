@@ -4,7 +4,7 @@
 name: Python application
 
 # Triggers the workflow on push or pull request events
-on: [push, pull_request]
+on: push
 
 jobs:
   build:
@@ -39,4 +39,4 @@ jobs:
           pipenv install --deploy --dev
       - name: Run test suite
         run: |
-          python -m pytest -vv
+          pytest -vv
