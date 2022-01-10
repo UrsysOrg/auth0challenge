@@ -5,10 +5,10 @@ from collections import defaultdict
 import logging
 
 ### VARIABLES
-stop_queue_name = "stop_instance_queue"
-lock_queue_name = "lock_instance_queue"
+STOP_QUEUE_NAME = "stop_instance_queue"
+LOCK_QUEUE_NAME = "lock_instance_queue"
 # We need this so we know which region to send our SQS messages to
-default_region  = "us-east-1"
+DEFAULT_REGION  = "us-east-1"
 
 ### LOGGING
 logging.basicConfig(level=logging.INFO)
@@ -17,11 +17,13 @@ log.setLevel(logging.INFO)
 
 ### CLASSES
 class SqsClient:
+    '''Creates a SQS Client to handle API actions'''
     def __init__(self, region):
         self.client = boto3.client('sqs', region_name=region)
         self.region = region
-    
+   
     def get_queue_url(self, queue_name):
+        '''Gets the URL of the queue'''
         try:
             response = self.client.get_queue_url(QueueName=queue_name)
             log.debug("Got queue url: {0}".format(response))
@@ -29,8 +31,9 @@ class SqsClient:
         except ClientError as error:
             log.error("Unable to get queue URL for queue: {0}, error: {1}".format(queue_name, error))
             return {}
-    
+
     def send_message(self, queue_url, message):
+        '''Sends a message to the queue'''
         try:
             response = self.client.send_message(QueueUrl=queue_url, MessageBody=message)
             log.debug("Sent message: {0}".format(response))
@@ -40,11 +43,13 @@ class SqsClient:
             return {}
 
 class Ec2Client:
+    '''Creates a EC2 client to handle API actions'''
     def __init__(self, region):
         self.client = boto3.client('ec2', region_name=region)
         self.region = region
-    
+
     def describe_instances(self, instance_ids):
+        '''Describes instances given a instance ids, returns a list of instances'''
         try:
             response = self.client.describe_instances(InstanceIds=instance_ids)
             log.debug("Describe instances response: {0}".format(response))
@@ -53,6 +58,7 @@ class Ec2Client:
             log.error("Unable to list instances, error: {0}".format(error))
             return {}
     def describe_security_groups(self, security_group_ids):
+        '''Describes security groups given a security group ids, returns a list of security groups'''
         try:
             response = self.client.describe_security_groups(GroupIds=security_group_ids)
             log.debug("Describe security groups response: {0}".format(response))
@@ -62,11 +68,13 @@ class Ec2Client:
             return {}
 
 class AutoscalerClient:
+    '''Creates an Autoscaler client to handle API actions'''
     def __init__(self, region):
         self.client = boto3.client('autoscaling', region_name=region)
         self.region = region
-    
+
     def describe_auto_scaling_instances(self, instance_ids):
+        '''Given a list of instance IDs, determine if they are part of an ASG'''
         try:
             response = self.client.describe_auto_scaling_instances(InstanceIds=instance_ids)
             log.debug("Describe AutoScaling Response: {0}".format(response))
@@ -74,19 +82,19 @@ class AutoscalerClient:
         except ClientError as error:
             log.error("Unable to list auto scaling instances, error: {0}".format(error))
             return {}
-        
+
 ### FUNCTIONS
 
-# Routes Messages to SQS Queue
 def route_instance_message(instancelist):
+    '''Routes messages to SQS Queue'''
     log.info("Routing instance list {} to SQS queue...".format(instancelist))
-    sqs_client = SqsClient(default_region)
-    lock_queue_url = sqs_client.get_queue_url(lock_queue_name)
-    stop_queue_url = sqs_client.get_queue_url(stop_queue_name)
+    sqs_client = SqsClient(DEFAULT_REGION)
+    lock_queue_url = sqs_client.get_queue_url(LOCK_QUEUE_NAME)
+    stop_queue_url = sqs_client.get_queue_url(STOP_QUEUE_NAME)
     if lock_queue_url and stop_queue_url == False:
         raise ValueError("Unable to get queue URLs for lock and stop queues, aborting...")
-    for dict in instancelist:
-        for instance in dict:
+    for instancedict in instancelist:
+        for instance in instancedict:
             # on success or failure, we continue to the next instance in the dict
             message_body = json.dumps(instance)
             log.debug("Sending message: {0}".format(message_body))
@@ -95,24 +103,21 @@ def route_instance_message(instancelist):
                 response = sqs_client.send_message(stop_queue_url, message_body)
                 if response:
                     continue
-                else:
-                    log.warn("Unable to send message to stop queue, attempting lock...")
-                    response = sqs_client.send_message(lock_queue_url, message_body)
-                    continue
+                log.warn("Unable to send message to stop queue, attempting lock...")
+                response = sqs_client.send_message(lock_queue_url, message_body)
+                continue
             # For instances that are being locked, we have no failure options but the dead letter queue
             if instance['action'] == 'lock':
                 response = sqs_client.send_message(lock_queue_url, message_body)
                 if response:
                     continue
-                else:
-                    log.error("Unable to send message to lock queue, aborting...")
-                    continue
+                log.error("Unable to send message to lock queue, aborting...")
+                continue
             else:
-                log.error("Unable to route instance message, unknown action: {0}".format(instance['action']))
-    return
+                raise ValueError("Unable to route instance message, unknown action: {0}".format(instance['action']))
 
-# given an instance dict and its flag, evaluate whether to stop or lock
 def stop_lock_instance(instance, flag, security_group_ids, vpc_id, region):
+    '''Given an instance dict and its flag, evaluate whether to stop or lock'''
     # Check to see if the instance is part of an autoscaling group, if the response is empty, then it is not part of an ASG
     log.info("Analyzing instances for shutdown/lock...")
     autoscaler_client = AutoscalerClient(region)
