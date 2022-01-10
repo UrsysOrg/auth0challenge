@@ -14,10 +14,6 @@ resource "aws_sqs_queue" "get_instance_info_queue" {
     deadLetterTargetArn = aws_sqs_queue.get_instance_info_dl_queue.arn
     maxReceiveCount     = 4
   })
-
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 }
 resource "aws_sqs_queue_policy" "get_instance_info_queue_policy" {
   queue_url = aws_sqs_queue.get_instance_info_queue.id
@@ -46,9 +42,6 @@ POLICY
 
 resource "aws_sqs_queue" "get_instance_info_dl_queue" {
   name = "get_instance_info_dl_queue"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 }
 
 resource "aws_sqs_queue_policy" "get_instance_info_dl_queue_policy" {
@@ -87,10 +80,6 @@ resource "aws_sqs_queue" "stop_instance_queue" {
     deadLetterTargetArn = aws_sqs_queue.stop_instance_dl_queue.arn
     maxReceiveCount     = 4
   })
-
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 }
 
 resource "aws_sqs_queue_policy" "stop_instance_queue_policy" {
@@ -121,9 +110,6 @@ POLICY
 
 resource "aws_sqs_queue" "stop_instance_dl_queue" {
   name = "stop_instance_dl_queue"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 }
 
 resource "aws_sqs_queue_policy" "stop_instance_dl_queue_policy" {
@@ -162,10 +148,6 @@ resource "aws_sqs_queue" "lock_instance_queue" {
     deadLetterTargetArn = aws_sqs_queue.lock_instance_dl_queue.arn
     maxReceiveCount     = 4
   })
-
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 }
 resource "aws_sqs_queue_policy" "lock_instance_queue_policy" {
   queue_url = aws_sqs_queue.lock_instance_queue.id
@@ -194,9 +176,6 @@ POLICY
 
 resource "aws_sqs_queue" "lock_instance_dl_queue" {
   name = "lock_instance_dl_queue"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 }
 resource "aws_sqs_queue_policy" "lock_instance_dl_queue_policy" {
   queue_url = aws_sqs_queue.lock_instance_dl_queue.id

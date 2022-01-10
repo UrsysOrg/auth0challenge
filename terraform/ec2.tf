@@ -24,7 +24,6 @@ resource "aws_vpc" "vpc" {
 
   tags = {
     Name      = "ec2_shutdown_vpc"
-    Candidate = "Sara Angel-Murphy"
   }
 }
 
@@ -35,16 +34,12 @@ resource "aws_subnet" "subnet" {
 
   tags = {
     Name      = "ec2_shutdown_subnet"
-    Candidate = "Sara Angel-Murphy"
   }
 }
 
 resource "aws_network_interface" "interface_default" {
   count     = local.instance_count
   subnet_id = aws_subnet.subnet.id
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 }
 
 resource "aws_instance" "instance_default" {
@@ -58,7 +53,6 @@ resource "aws_instance" "instance_default" {
   }
   tags = {
     Name      = "ec2_instance_default_sg"
-    Candidate = "Sara Angel-Murphy"
   }
 }
 
@@ -80,18 +74,12 @@ resource "aws_security_group" "open_ssh" {
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 }
 
 resource "aws_network_interface" "interface_ssh" {
   count           = local.instance_count
   subnet_id       = aws_subnet.subnet.id
   security_groups = [aws_security_group.open_ssh.id]
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 }
 
 resource "aws_instance" "instance_ssh" {
@@ -100,7 +88,6 @@ resource "aws_instance" "instance_ssh" {
   instance_type = "t2.micro"
   tags = {
     Name      = "ec2_instance_ssh_open_sg"
-    Candidate = "Sara Angel-Murphy"
   }
   network_interface {
     network_interface_id = aws_network_interface.interface_ssh[count.index].id
@@ -134,7 +121,6 @@ resource "aws_vpc" "vpc_west" {
 
   tags = {
     Name      = "ec2_shutdown_vpc"
-    Candidate = "Sara Angel-Murphy"
   }
 }
 
@@ -146,7 +132,6 @@ resource "aws_subnet" "subnet_west" {
 
   tags = {
     Name      = "ec2_shutdown_subnet"
-    Candidate = "Sara Angel-Murphy"
   }
 }
 resource "aws_security_group" "open_ssh_west" {
@@ -168,18 +153,12 @@ resource "aws_security_group" "open_ssh_west" {
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 }
 resource "aws_network_interface" "interface_ignore" {
   provider        = aws.uswest1
   count           = local.instance_count
   subnet_id       = aws_subnet.subnet_west.id
   security_groups = [aws_security_group.open_ssh_west.id]
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 }
 
 resource "aws_instance" "instance_ignore" {
@@ -189,7 +168,6 @@ resource "aws_instance" "instance_ignore" {
   instance_type = "t2.micro"
   tags = {
     Name                      = "ec2_instance_ignore_sg"
-    Candidate                 = "Sara Angel-Murphy",
     shutdown_service_excluded = "True"
   }
   network_interface {
@@ -201,9 +179,6 @@ resource "aws_network_interface" "interface_default_west" {
   provider  = aws.uswest1
   count     = local.instance_count
   subnet_id = aws_subnet.subnet_west.id
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 }
 
 resource "aws_instance" "instance_default_west" {
@@ -218,7 +193,6 @@ resource "aws_instance" "instance_default_west" {
   }
   tags = {
     Name      = "ec2_instance_default_sg"
-    Candidate = "Sara Angel-Murphy"
   }
 }
 
@@ -227,9 +201,6 @@ resource "aws_network_interface" "interface_ssh_west" {
   count           = local.instance_count
   subnet_id       = aws_subnet.subnet_west.id
   security_groups = [aws_security_group.open_ssh_west.id]
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
 }
 
 resource "aws_instance" "instance_ssh_west" {
@@ -239,7 +210,6 @@ resource "aws_instance" "instance_ssh_west" {
   instance_type = "t2.micro"
   tags = {
     Name      = "ec2_instance_ssh_open_sg"
-    Candidate = "Sara Angel-Murphy"
   }
   network_interface {
     network_interface_id = aws_network_interface.interface_ssh_west[count.index].id
