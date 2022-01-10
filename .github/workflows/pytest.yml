@@ -30,7 +30,11 @@ jobs:
       - name: Install pipenv
         run: |
           python -m pip install --upgrade pipenv wheel
-        
+      
+      - name: Install local packages
+        run: |
+            pipenv run pip install -e .
+
       # Cache our requirements using the pipefile.lock as the key
       # as the lock file changes, our requirements will be refetched
       - id: cache-pipenv
@@ -43,7 +47,7 @@ jobs:
         if: steps.cache-pipenv.outputs.cache-hit != 'true'
         run: |
           pipenv install --deploy --dev
-          pipenv run pip install -e .
+
       - name: Run test suite
         run: |
           pipenv run pytest -v
