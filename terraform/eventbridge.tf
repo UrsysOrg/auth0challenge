@@ -10,7 +10,7 @@ data "aws_iam_policy_document" "allow_multiregion_resource_policy" {
       "events:PutEvents",
     ]
     resources = [
-      "arn:aws:events:eu-west-1:123456789012:event-bus/ec2-shutdown-bus",
+      "arn:aws:events:eu-west-1:${var.account_id}:event-bus/ec2-shutdown-bus",
     ]
 
     principals {
