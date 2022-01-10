@@ -254,8 +254,3 @@ def lambda_handler(event, context):
             'statusCode': 200,
             'body': json.dumps('Instances processed successfully!')
         }
-
-### LOCAL TESTING
-#if __name__ == '__main__':
-#    event = {'Records': [{'body': '{"instance_id": "i-052de5ca5310890a9", "region": "us-east-1"}'}]}
-#    lambda_handler(event, "foo")

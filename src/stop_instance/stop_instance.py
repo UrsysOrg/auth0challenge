@@ -7,7 +7,7 @@ lock_queue_name = "lock_instance_queue"
 default_region = "us-east-1"
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("ec2_stop_logger")
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 ### CLASSES
 class SqsClient:
@@ -96,3 +96,4 @@ def lambda_handler(event, context):
                 'statusCode': 200,
                 'body': json.dumps('Successfully sent instance to lock queue!')
             }
+
