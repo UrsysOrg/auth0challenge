@@ -265,7 +265,7 @@ resource "aws_cloudwatch_event_target" "send_to_remote_ap_southeast_1" {
 ### AP SOUTHEAST 2
 
 resource "aws_cloudwatch_event_rule" "capture_ec2_remote_ap_southeast_2" {
-  provider    = aws.apsoutheast1
+  provider    = aws.apsoutheast2
   name        = "capture-ec2-remote"
   description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
   tags = {
@@ -282,7 +282,7 @@ resource "aws_cloudwatch_event_rule" "capture_ec2_remote_ap_southeast_2" {
 }
 
 resource "aws_cloudwatch_event_target" "send_to_remote_ap_southeast_2" {
-  provider  = aws.apsoutheast1
+  provider  = aws.apsoutheast2
   target_id = "SendToRemoteBus"
   arn       = aws_cloudwatch_event_bus.ec2_shutdown_bus.arn
   role_arn  = aws_iam_role.assume_send_events_role.arn
