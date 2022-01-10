@@ -237,30 +237,6 @@ resource "aws_cloudwatch_event_target" "send_to_remote_ap_south_1" {
 
 ### AP SOUTHEAST 1
 
-resource "aws_cloudwatch_event_rule" "capture_ec2_remote_ap_southeast_1" {
-  provider    = aws.apsoutheast1
-  name        = "capture-ec2-remote"
-  description = "Capture each Running EC2 instance and sends the event unmodified to remote event bus"
-  tags = {
-    Candidate = "Sara Angel-Murphy"
-  }
-
-  event_pattern = jsonencode({
-    "source" : ["aws.ec2"],
-    "detail-type" : ["EC2 Instance State-change Notification"],
-    "detail" : {
-      "state" : ["running"]
-    }
-  })
-}
-
-resource "aws_cloudwatch_event_target" "send_to_remote_ap_southeast_1" {
-  provider  = aws.apsoutheast1
-  target_id = "SendToRemoteBus"
-  arn       = aws_cloudwatch_event_bus.ec2_shutdown_bus.arn
-  role_arn  = aws_iam_role.assume_send_events_role.arn
-  rule      = aws_cloudwatch_event_rule.capture_ec2_remote_ap_southeast_1.name
-}
 
 ### AP SOUTHEAST 2
 
