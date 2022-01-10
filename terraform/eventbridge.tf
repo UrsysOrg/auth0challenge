@@ -21,7 +21,6 @@ data "aws_iam_policy_document" "allow_multiregion_resource_policy" {
 }
 
 resource "aws_cloudwatch_event_bus_policy" "allow_multiregion_events_policy" {
-  name = "ec2-shutdown-bus-policy"
   event_bus_name = "${aws_cloudwatch_event_bus.ec2_shutdown_bus.name}"
   policy = "${data.aws_iam_policy_document.allow_multiregion_resource_policy.json}"
 }
