@@ -11,9 +11,9 @@ lock_queue_name = "lock_instance_queue"
 default_region  = "us-east-1"
 
 ### LOGGING
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("ec2_shutdown_logger")
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 ### CLASSES
 class SqsClient:

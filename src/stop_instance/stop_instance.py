@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 
 lock_queue_name = "lock_instance_queue"
 default_region = "us-east-1"
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("ec2_stop_logger")
 log.setLevel(logging.DEBUG)
 
