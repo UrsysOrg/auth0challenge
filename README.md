@@ -21,6 +21,8 @@ We are using Terraform Cloud's Free Tier as a remote backend for running our ter
 
 The Auth0 Challenge Service is made up of the following components:
 
+![ChallengeArchitecture](static/challenge-architecture.png)
+
 ### Eventbridge
 
 We deploy an eventbridge rule "capture-instance-remote" in every non-opt-in region in AWS. These rules listen for EC2 instance state changes, and if they are in the running state, send the event to the ec2-shutdown-bus event bus in us-east-1. Only entitites that have a specific role ARN are permitted to post messages to the ec2-shutdown-bus event bus.
@@ -33,9 +35,9 @@ We make use of several AWS SQS queues to enable queueing in the event our lambda
 
 #### Queues
 
-- get_instance_info_queue: This queue is used to send messages to the lambda function that will retrieve instance information from AWS.
-- stop_instance_queue: This queue is used to send messages to the lambda function that will stop an EC2 instance.
-- lock_instance_queue: This queue is used to send messages to the lambda function that will lock an instance.
+- `get_instance_info_queue`: This queue is used to send messages to the lambda function that will retrieve instance information from AWS.
+- `stop_instance_queue`: This queue is used to send messages to the lambda function that will stop an EC2 instance.
+- `lock_instance_queue`: This queue is used to send messages to the lambda function that will lock an instance.
 
 All of the above queues additionall yhave dead letter queues to handle event errors.
 
@@ -47,9 +49,9 @@ Enabling support for batching instances is as simple as changing the terraform l
 
 Lambda functions are used to perform the analysis, stopping, and locking of EC2 instances. The functions are:
 
-- evaluate_instances: This function is used to evaluate the state of an EC2 instance and send a message to the appropriate queue -> function. 
-- stop_instance: This function will stop an instance sent to it by evaluate_instances. Instances are candidates for stopping if the instance in question has flagged security groups, has an ebs volume, does not belong to an autoscaling group, and is not a spot instance state. Additionally, if the stop_instance function fails, we will attempt to lock the instance before failing completely.
-- lock_instance: This function will "lock" an instance if it has flagged security groups and does not have an ebs volume, does belong to an autoscaling group, or is a spot instance. evaluate_instances or stop_instance. "Locking" an instance entails removing the security group that was flagged on instance creation, and replacing it with a dummy security group that does nothing but allow an instance to emit traffic to itself.
+- `evaluate_instances`: This function is used to evaluate the state of an EC2 instance and send a message to the appropriate queue -> function.
+- `stop_instance`: This function will stop an instance sent to it by evaluate_instances. Instances are candidates for stopping if the instance in question has flagged security groups, has an ebs volume, does not belong to an autoscaling group, and is not a spot instance state. Additionally, if the stop_instance function fails, we will attempt to lock the instance before failing completely.
+- `lock_instance`: This function will "lock" an instance if it has flagged security groups and does not have an ebs volume, does belong to an autoscaling group, or is a spot instance. evaluate_instances or stop_instance. "Locking" an instance entails removing the security group that was flagged on instance creation, and replacing it with a dummy security group that does nothing but allow an instance to emit traffic to itself.
 
 Lambda functions are managed as docker containers, and are deployed to an Elastic Container Registry (ECR) in the us-east-1 region.
 
@@ -57,9 +59,9 @@ Lambda functions are managed as docker containers, and are deployed to an Elasti
 
 We have three ECR repositories:
 
-- evaluate_instance_repository: This repository contains the docker image for the evaluate_instances lambda function.
-- stop_instance_repository: This repository contains the docker image for the stop_instance lambda function.
-- lock_instance_repository: This repository contains the docker image for the lock_instance lambda function.
+- `evaluate_instance_repository`: This repository contains the docker image for the evaluate_instances lambda function.
+- `stop_instance_repository`: This repository contains the docker image for the stop_instance lambda function.
+- `lock_instance_repository`: This repository contains the docker image for the lock_instance lambda function.
 
 #### Pushing Lambdas to ECR
 
