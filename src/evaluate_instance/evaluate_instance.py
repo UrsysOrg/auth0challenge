@@ -140,8 +140,9 @@ def has_ssh_open(security_groups):
         for p in sg['IpPermissions']:
             # We need to check if the SG Rule actually refers to an IP protocol vs a security group, otherwise we get a key error when evaluating
             if 'FromPort' in p and 'ToPort' in p:
-                if (p['FromPort'] == 22 or p['FromPort'] == -1) and (p['ToPort'] == 22 or p['ToPort'] == -1) and p['IpProtocol'] == 'tcp' and (p['IpRanges'][0]['CidrIp'] == '0.0.0.0/0' or p['IpRanges'][0]['CidrIp'] == '::/0'):
-                    return True
+                if ((p['FromPort'] == 22 or p['FromPort'] == -1) and (p['ToPort'] == 22 or p['ToPort'] == -1)) or (p['FromPort'] <= 22 <= p['ToPort']):
+                    if p['IpProtocol'] == 'tcp' and (p['IpRanges'][0]['CidrIp'] == '0.0.0.0/0' or p['IpRanges'][0]['CidrIp'] == '::/0'):
+                        return True
     return False
 
 # Takes as input a dictionary of security groups, parses for rules, and returns True or False if HTTP is open
