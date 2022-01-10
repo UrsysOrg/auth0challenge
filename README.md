@@ -77,3 +77,48 @@ Note that you will need to run terraform apply to deploy the lambda functions on
 ## Monitoring
 
 [A Custom Cloudwatch Dashboard](https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#dashboards) has been created for this service and is available by clicking on the link.
+
+## Pricing
+
+### Eventbridge Pricing
+
+[Eventbridge Pricing](https://aws.amazon.com/eventbridge/pricing/)
+[Data Transfer Pricing](https://aws.amazon.com/ec2/pricing/on-demand/#Data_Transfer)
+
+AWS Eventbridge runs in all AWS regions that support EC2 instances, that are not opt-in only regions. Happily, all AWS Default Service Events, including EC2 instance state changes, are entirely free of charge. However, we are charged for cross-region events at standard AWS Data Transfer rates, at $0.09 USD per GB. While AWS does not publish the exact size of each AWS event, using a sample event payload (and bearing in mind there may be some fluctuation depending on the time an instance was started at), each event is approximately 388 bytes. Given that a gigabyte is 1 billion bytes, this means the cost of our eventbridge rule invocation, for all cross region AWS accounts, is approximately $0.00000003492 per event ((388 / 1e9) * 0.09). 
+
+$1 USD is approximately 30 million instance start events.
+
+### SQS Pricing
+
+[SQS Pricing](https://aws.amazon.com/sqs/pricing/)
+
+We have 3 SQS queues, and we are within the Free Tier for all of them. Each instance start event will traverse at least one, and possibly two or three SQS queues depending on if it an instance that is a candidate for stopping. The first million requests per month are free, and the next 100 billion requests per month are priced at $0.40 USD per million. Since each event is well under the 64KB payload chunk, we can assume each event results in only one billed request.
+
+Data transfered between Amazon SQS and AWS Lambda within a single region is free of charge.
+
+$1 USD is approximately 2.5 million instance start events.
+
+### Lambda Pricing
+
+[Lambda Pricing](https://aws.amazon.com/lambda/pricing/)
+
+The average time to execute our lambda functions is on the order of 2.8 seconds for evaluate instances, and 1.7 seconds for the stop instances function. Our lambdas are all executing in us-east-1 on x86, which means a price of $0.0000166667 for every GB-second and $0.20 per 1M requests.
+
+The evaluate_instances lambda function will execute on all instance launch events, and the stop_instance/lock_instance lambda will only execute when we hit a flagged instance. 
+
+For our evaluate_instances lambda function, we will spend on average per execution:
+$0.00000588 USD
+
+$1 USD is approximately 200,000 instance start invocations.
+
+For our stop_instance lambda function, we will spend on average per execution:
+$0.00000357 USD
+
+$1 USD is approximately 300,000 instance stop invocations.
+
+### AWS Cloudwatch
+
+[Cloudwatch Pricing](https://aws.amazon.com/cloudwatch/pricing/)
+
+We do not use any custom Cloudwatch metrics or events, and all event logs, dashboards, and metrics are below the free tier limits.
