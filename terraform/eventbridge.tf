@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "allow_multiregion_resource_policy" {
 
     principals {
       type        = "AWS"
-      identifiers = ["${var.account_id}"]
+      identifiers = ["${aws_iam_role.assume_send_events_role_us_west.arn}"]
     }
   }
 }
