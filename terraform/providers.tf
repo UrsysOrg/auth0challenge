@@ -1,84 +1,169 @@
 provider "aws" {
   region = var.region
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 
 provider "aws" {
   alias  = "useast2"
   region = "us-east-2"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }  
 }
 
 provider "aws" {
   alias  = "uswest1"
   region = "us-west-1"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 
 provider "aws" {
   alias  = "uswest2"
   region = "us-west-2"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 
 provider "aws" {
   alias  = "apsouth1"
   region = "ap-south-1"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 
 provider "aws" {
   alias  = "apsoutheast1"
   region = "ap-southeast-1"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 provider "aws" {
   alias  = "apsoutheast2"
   region = "ap-southeast-2"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 
 provider "aws" {
   alias  = "apnortheast1"
   region = "ap-northeast-1"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 
 provider "aws" {
   alias  = "apnortheast2"
   region = "ap-northeast-2"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 
 provider "aws" {
   alias  = "apnortheast3"
   region = "ap-northeast-3"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 
 provider "aws" {
   alias  = "cacentral1"
   region = "ca-central-1"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 
 provider "aws" {
   alias  = "eucentral1"
   region = "eu-central-1"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 
 provider "aws" {
   alias  = "euwest1"
   region = "eu-west-1"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 
 provider "aws" {
   alias  = "euwest2"
   region = "eu-west-2"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 
 provider "aws" {
   alias  = "euwest3"
   region = "eu-west-3"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 
 provider "aws" {
   alias  = "eunorth1"
   region = "eu-north-1"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 
 provider "aws" {
   alias  = "saeast1"
   region = "sa-east-1"
+  default_tags {
+    tags = {
+      Candidate = "Sara Angel-Murphy"
+    }
+  }
 }
 
 
