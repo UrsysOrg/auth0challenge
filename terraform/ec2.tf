@@ -86,8 +86,8 @@ resource "aws_security_group" "open_ssh" {
 }
 
 resource "aws_network_interface" "interface_ssh" {
-  count     = local.instance_count
-  subnet_id = aws_subnet.subnet.id
+  count           = local.instance_count
+  subnet_id       = aws_subnet.subnet.id
   security_groups = [aws_security_group.open_ssh.id]
   tags = {
     Candidate = "Sara Angel-Murphy"
@@ -95,9 +95,9 @@ resource "aws_network_interface" "interface_ssh" {
 }
 
 resource "aws_instance" "instance_ssh" {
-  count                  = local.instance_count
-  ami                    = data.aws_ami.ubuntu.id
-  instance_type          = "t2.micro"
+  count         = local.instance_count
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t2.micro"
   tags = {
     Name      = "ec2_instance_ssh_open_sg"
     Candidate = "Sara Angel-Murphy"
@@ -112,7 +112,7 @@ resource "aws_instance" "instance_ssh" {
 ### US WEST
 
 data "aws_ami" "ubuntu_us_west_1" {
-  provider = aws.uswest1
+  provider    = aws.uswest1
   most_recent = true
 
   filter {
@@ -129,7 +129,7 @@ data "aws_ami" "ubuntu_us_west_1" {
 }
 
 resource "aws_vpc" "vpc_west" {
-  provider = aws.uswest1
+  provider   = aws.uswest1
   cidr_block = "10.0.0.0/16"
 
   tags = {
@@ -139,7 +139,7 @@ resource "aws_vpc" "vpc_west" {
 }
 
 resource "aws_subnet" "subnet_west" {
-  provider = aws.uswest1
+  provider          = aws.uswest1
   vpc_id            = aws_vpc.vpc_west.id
   cidr_block        = "10.0.0.0/24"
   availability_zone = "us-west-1a"
@@ -150,7 +150,7 @@ resource "aws_subnet" "subnet_west" {
   }
 }
 resource "aws_security_group" "open_ssh_west" {
-  provider = aws.uswest1
+  provider    = aws.uswest1
   name        = "Open SSH from World"
   description = "Open SSH from World"
   vpc_id      = aws_vpc.vpc_west.id
@@ -174,9 +174,9 @@ resource "aws_security_group" "open_ssh_west" {
 }
 
 resource "aws_network_interface" "interface_ignore" {
-  provider  = aws.uswest1
-  count     = local.instance_count
-  subnet_id = aws_subnet.subnet_west.id
+  provider        = aws.uswest1
+  count           = local.instance_count
+  subnet_id       = aws_subnet.subnet_west.id
   security_groups = [aws_security_group.open_ssh_west.id]
   tags = {
     Candidate = "Sara Angel-Murphy"
@@ -184,14 +184,14 @@ resource "aws_network_interface" "interface_ignore" {
 }
 
 resource "aws_instance" "instance_ignore" {
-  provider = aws.uswest1
-  count                  = local.instance_count
-  ami                    = data.aws_ami.ubuntu_us_west_1.id
-  instance_type          = "t2.micro"
+  provider      = aws.uswest1
+  count         = local.instance_count
+  ami           = data.aws_ami.ubuntu_us_west_1.id
+  instance_type = "t2.micro"
   tags = {
-      Name      = "ec2_instance_ignore_sg"
-      Candidate = "Sara Angel-Murphy",
-      shutdown_service_excluded = "True"
+    Name                      = "ec2_instance_ignore_sg"
+    Candidate                 = "Sara Angel-Murphy",
+    shutdown_service_excluded = "True"
   }
   network_interface {
     network_interface_id = aws_network_interface.interface_ignore[count.index].id

@@ -1,6 +1,7 @@
 ### US EAST 1
 locals {
   testarn = "arn:aws:lambda:us-east-1:201973737062:function:helloWorldTestEc2"
+  stoparn = "arn:aws:lambda:us-east-1:201973737062:function:stopTest"
 }
 resource "aws_sqs_queue" "get_instance_info_queue" {
   name                       = "get_instance_info_queue"
@@ -182,7 +183,7 @@ resource "aws_sqs_queue_policy" "lock_instance_queue_policy" {
       "Resource": "${aws_sqs_queue.lock_instance_queue.arn}",
       "Condition": {
         "ArnEquals": {
-          "aws:SourceArn": "${local.testarn}"
+          "aws:SourceArn": ["${local.testarn}", "${local.stoparn}"]
         }
       }
     }
